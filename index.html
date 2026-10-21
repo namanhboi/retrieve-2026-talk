@@ -185,7 +185,12 @@ function introDiagram(step){
  if(step===1){
   const columns=[116,392,668,944],names=['Pre-filter','Post-filter','Graph traversal','IVF-Flat'];
   const dot=(key,id,x,y,pass)=>[CI(key,x,y,18,pass?C.pale:C.warm,pass?C.blue:C.orange,1.7),TX(key+'-id',id,x-10,y+8,22,pass?C.blue:C.orange,25)];
-  names.forEach((name,i)=>{a.push(TX('approach-name-'+i,name,columns[i],205,25,C.blue,238));if(i)a.push(L('approach-divider-'+i,columns[i]-22,185,columns[i]-22,598,C.line,1));});
+  names.forEach((name,i)=>{a.push(TX('approach-name-'+i,name,columns[i],i<2?205:258,i<2?25:23,C.blue,238));if(i)a.push(L('approach-divider-'+i,columns[i]-22,i===3?278:185,columns[i]-22,638,C.line,1));});
+  a.push(TX('inline-heading','Inline filtering',818,205,26,C.blue,346),
+   L('inline-bracket',668,225,1164,225,C.blue,1.5),
+   L('inline-bracket-left',668,225,668,235,C.blue,1.5),
+   L('inline-bracket-right',1164,225,1164,235,C.blue,1.5));
+  const approachGraphicStart=a.length;
   // Pre-filter: select the passing set before scoring vectors.
   const points=[['A',28,279,true],['X',105,263,false],['B',188,281,true],['Y',56,332,false],['D',151,337,true]];
   for(const [id,x,y,p]of points)a.push(...dot('pre-'+id,id,116+x,y,p));
@@ -218,6 +223,10 @@ function introDiagram(step){
   });
   a.push(TX('ivf-probe','Probe lists',944,245,20,C.muted,238),...arrow('ivf-scan',1054,459,1054,489,C.blue,2),TX('ivf-caption','Filter, then score',944,538,23,C.blue,238));
   a.push(TX('approach-legend','Blue passes the predicate. Orange fails.',116,601,19,C.muted,1048));
+  // Make space for the shared category heading above the two inline methods.
+  for(let i=approachGraphicStart;i<a.length;i++){
+   if(a[i].type==='line'){a[i].y1+=40;a[i].y2+=40;}else a[i].y+=40;
+  }
  }
  if(step===2){
   a.push(TX('impl-aware','Predicate / attribute aware',116,208,28,C.orange,490),
@@ -870,7 +879,7 @@ function applyConventions(kind,s){
   const points=[[680,216],[736,209],[850,208],[901,249],[823,290],[903,392],[849,444],[775,447],[681,366]];
   const edges=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],[1,4],[4,7]];
   const anchors=[['A',0],['B',5],['C',7]].map(([id,i])=>[items.find(c=>c.key==='intro1-graph-'+id),i]);
-  items=[...contextNetwork('approach-context',points,edges,anchors,items.filter(c=>c.type==='circle'&&/^intro1-graph-[A-Z]$/.test(c.key))),...items];
+  items=[...contextNetwork('approach-context',points.map(([x,y])=>[x,y+42.4]),edges,anchors,items.filter(c=>c.type==='circle'&&/^intro1-graph-[A-Z]$/.test(c.key))),...items];
  }
  return {...s,items};
 }
