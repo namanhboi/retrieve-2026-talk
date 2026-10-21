@@ -107,9 +107,6 @@ function toyScene(kind,step=0){
    out.push({type:'token',key:region+'-token-'+id,id,d:n.d,pass:n.pass,x,y,w:p.w,h:p.h,alpha:on?1:0,active:(region==='extra'&&kind==='retain'&&id==='B')||(region==='child'&&kind==='navix'&&id===s.active)});
   }
  }
- if(s.sorted){
-  out.push(R('stale-scratch',1076,270,88,72,'#F4F6F8',C.line,1.2),T('stale-label','stale',1094,312,20,C.gray,{w:69,h:28}));
- }
  if(s.retired){
   out.push(T('invalid-top','invalid',824,312,18,C.gray,{w:76,h:28}),T('retired-label','X retired',116,401,17,C.orange,{w:100,h:26}));
  }
@@ -526,8 +523,7 @@ function cagraEntry(key,n,slot,alpha=1,active=false,tag=''){
 }
 function cagraBuffer(step){
  const sorted=step>=2,merged=step===3,a=[];
- a.push(TX('top-label','Top-L',116,200,29,C.blue,524),TX('cand-label',merged?'Scratch (inactive)':'Scratch candidates',660,200,29,merged?C.gray:C.blue,504));
- if(merged)a.push(R('inactive-scratch-background',640,220,524,112,'#F4F6F8','none',0));
+ a.push(TX('top-label','Top-L',116,200,29,C.blue,524),TX('cand-label','Scratch candidates',660,200,29,C.blue,504));
  const childOrder=sorted?[...cagraChildren].sort((a,b)=>a.d-b.d):cagraChildren;
  const ids=[...new Set([...cagraOld,...cagraMerged].map(x=>x.id))];
  for(const id of ids){
@@ -537,7 +533,7 @@ function cagraBuffer(step){
   const tag=id==='R'||id==='A'&&step>=2?'expanded':id==='A'?'parent':'';
   a.push(...cagraEntry('retained'+id,n,slot,on?1:0,!merged&&id==='A',tag));
  }
- cagraChildren.forEach(n=>a.push(...cagraEntry('candidate'+n.id,n,4+childOrder.findIndex(x=>x.id===n.id),merged?.25:1,step===2)));
+ cagraChildren.forEach(n=>a.push(...cagraEntry('candidate'+n.id,n,4+childOrder.findIndex(x=>x.id===n.id),1,step===2)));
  a.push(R('buffer-outline',116,220,1048,112,'none',C.blue,2));
  for(let i=1;i<8;i++)a.push(L('cell-boundary'+i,cagraCellX(i),220,cagraCellX(i),332,i===4?C.blue:C.line,i===4?3:1));
  if(step===1){
@@ -646,7 +642,7 @@ function leanScene(kind,step,s){
   if(key==='s-memory')text='≤ D slots / parent';if(key==='s-check')text='Visited at commit';
   if(key==='r-lock-text')text=step===4?'Locked':'Free';
   if(worked&&key==='extra-label')text=kind==='retain'?'Passing top-k':kind==='navix'?'Bridges':'';
-  if(worked&&key==='child-label')text=s.state.merge?'Scratch (inactive)':s.state.sorted?'Sorted prefix':'Scratch candidates';
+  if(worked&&key==='child-label')text=s.state.sorted?'Sorted prefix':'Scratch candidates';
   if(worked&&key==='toy-parameters')text='k = L = 2     W = 1     D = 3';
   if(worked&&key==='result-note')text=kind==='retain'?'Best seen: [R, B]':'Top-k now: [R, D]';
   if(worked&&key==='loss-note')text='B lost';
@@ -856,13 +852,6 @@ function applyConventions(kind,s){
   const anchors=[['R',0],['C',4]].map(([id,i])=>[items.find(c=>c.key==='node-'+id),i]);
   items=[...contextNetwork('graph-context',points,edges,anchors,items.filter(c=>c.type==='node')),...items];
   if(s.state.merge){
-   items=items.map(c=>{
-    if(c.key.startsWith('child-token-'))return {...c,alpha:(c.alpha??1)*.25};
-    if(c.key.startsWith('child-slot-'))return {...c,fill:'#F4F6F8',color:C.line};
-    if(c.key==='child-label')return {...c,color:C.gray};
-    if(c.key==='stale-label')return {...c,alpha:.35};
-    return c;
-   });
    const arrow=items.find(c=>c.key==='copy-across');
    items.push(T('merge-action','Merge',arrow.x1+30,arrow.y1+7,24,C.blue,{w:150,h:34}));
   }
